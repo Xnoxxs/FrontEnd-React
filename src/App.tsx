@@ -28,6 +28,7 @@ function App() {
           Counts is {count}
         </button>
         <text> THIS IS AN UPDATE</text>
+        <text> THIS IS SECOND UPDATE</text>
       </section>
 
       <div className="ticks"></div>
