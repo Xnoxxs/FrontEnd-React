@@ -7,7 +7,7 @@ import './App.css'
 function App() {
   const { count, incrementCount } = useCounter()
 
-  const user = { name: "John", age: 25 }
+  const user = { name: 'John', age: 25 }
   console.log(user)
 
   return (
@@ -24,12 +24,10 @@ function App() {
             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
           </p>
         </div>
-        <button
-          className="counter"
-          onClick={incrementCount}
-        >
+        <button className="counter" onClick={incrementCount}>
           Counts is {count}
         </button>
+        <text> THIS IS AN UPDATE</text>
       </section>
 
       <div className="ticks"></div>
