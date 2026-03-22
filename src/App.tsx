@@ -7,9 +7,6 @@ import './App.css'
 function App() {
   const { count, incrementCount } = useCounter()
 
-
-  const unusedVariable = 'this will trigger a lint error'
-
   const user = { name: 'John', age: 25 }
   console.log(user)
 
