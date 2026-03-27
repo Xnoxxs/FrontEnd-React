@@ -36,12 +36,26 @@ export default function MovieBrowse({ storybookDemo }: MovieBrowseProps = {}) {
   const apiKey = (import.meta.env.VITE_TMDB_API_KEY ?? '').trim()
   const hasApiKey = apiKey.length > 0 || Boolean(storybookDemo)
 
-  const [movies, setMovies] = useState<Movie[]>(
-    () => storybookDemo?.movies ?? [],
+  const demoMovies = useMemo(
+    () =>
+      storybookDemo
+        ? storybookDemo.movies.map((m) => ({
+            ...m,
+            genre_ids: m.genre_ids ?? [],
+          }))
+        : null,
+    [storybookDemo],
   )
-  const [genres, setGenres] = useState<Genre[]>(
-    () => storybookDemo?.genres ?? [],
+  const demoGenres = useMemo(
+    () => (storybookDemo ? (storybookDemo.genres ?? []) : null),
+    [storybookDemo],
   )
+
+  const [fetchedMovies, setFetchedMovies] = useState<Movie[]>([])
+  const [fetchedGenres, setFetchedGenres] = useState<Genre[]>([])
+  const movies = demoMovies ?? fetchedMovies
+  const genres = demoGenres ?? fetchedGenres
+
   const [searchInput, setSearchInput] = useState('')
   const debouncedSearch = useDebouncedValue(searchInput, SEARCH_DEBOUNCE_MS)
 
@@ -49,61 +63,54 @@ export default function MovieBrowse({ storybookDemo }: MovieBrowseProps = {}) {
   const [minRating, setMinRating] = useState<string>('0')
   const [sortBy, setSortBy] = useState<SortOption>('popularity')
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [fetchLoading, setFetchLoading] = useState(false)
+  const [fetchError, setFetchError] = useState<string | null>(null)
+  const loading = storybookDemo ? false : fetchLoading
+  const error = storybookDemo ? null : fetchError
 
   useEffect(() => {
     if (storybookDemo) return
     if (!apiKey) return
     fetchMovieGenres(apiKey)
-      .then(setGenres)
+      .then(setFetchedGenres)
       .catch(() => {
-        setGenres([])
+        setFetchedGenres([])
       })
   }, [storybookDemo, apiKey])
 
   useEffect(() => {
-    if (storybookDemo) {
-      setMovies(
-        storybookDemo.movies.map((m) => ({
-          ...m,
-          genre_ids: m.genre_ids ?? [],
-        })),
-      )
-      setGenres(storybookDemo.genres ?? [])
-      setLoading(false)
-      setError(null)
-      return
-    }
+    if (storybookDemo) return
     if (!apiKey) return
     let cancelled = false
     void Promise.resolve().then(() => {
       if (cancelled) return
-      setLoading(true)
-      setError(null)
+      setFetchLoading(true)
+      setFetchError(null)
       const q = debouncedSearch.trim()
       const promise =
         q === '' ? fetchPopularMovies(apiKey) : searchMovies(apiKey, q)
       void promise
         .then((results) => {
           if (!cancelled) {
-            setMovies(
+            setFetchedMovies(
               results.map((m) => ({
                 ...m,
                 genre_ids: m.genre_ids ?? [],
-              }))
+              })),
             )
           }
         })
         .catch((e: unknown) => {
           if (!cancelled) {
-            setError(e instanceof Error ? e.message : 'Something went wrong')
-            setMovies([])
+            setFetchError(
+              e instanceof Error ? e.message : 'Something went wrong',
+            )
+            setFetchedMovies([])
           }
         })
         .finally(() => {
           if (!cancelled) {
-            setLoading(false)
+            setFetchLoading(false)
           }
         })
     })

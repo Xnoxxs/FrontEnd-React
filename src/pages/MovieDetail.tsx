@@ -41,50 +41,49 @@ export default function MovieDetail({ storybookDemo }: MovieDetailProps = {}) {
   const apiKey = (import.meta.env.VITE_TMDB_API_KEY ?? '').trim()
   const hasApiKey = apiKey.length > 0 || Boolean(storybookDemo)
 
-  const [movie, setMovie] = useState<MovieDetails | null>(
-    () => storybookDemo ?? null,
-  )
-  const [loading, setLoading] = useState(() => {
+  const [fetchedMovie, setFetchedMovie] = useState<MovieDetails | null>(null)
+  const [fetchLoading, setFetchLoading] = useState(() => {
     if (storybookDemo) return false
     if (!apiKey) return false
     return true
   })
-  const [error, setError] = useState<string | null>(null)
+  const [fetchError, setFetchError] = useState<string | null>(null)
+
+  const movie = storybookDemo ?? fetchedMovie
+  const loading = storybookDemo ? false : fetchLoading
+  const error = storybookDemo ? null : fetchError
 
   useEffect(() => {
-    if (storybookDemo) {
-      setMovie(storybookDemo)
-      setLoading(false)
-      setError(null)
-      return
-    }
+    if (storybookDemo) return
     let cancelled = false
     void Promise.resolve().then(() => {
       if (cancelled) return
       if (!hasApiKey) {
-        setLoading(false)
+        setFetchLoading(false)
         return
       }
       if (Number.isNaN(id) || id <= 0) {
-        setLoading(false)
-        setError('Invalid movie ID.')
-        setMovie(null)
+        setFetchLoading(false)
+        setFetchError('Invalid movie ID.')
+        setFetchedMovie(null)
         return
       }
-      setLoading(true)
-      setError(null)
+      setFetchLoading(true)
+      setFetchError(null)
       void fetchMovieDetails(apiKey, id)
         .then((data) => {
-          if (!cancelled) setMovie(data)
+          if (!cancelled) setFetchedMovie(data)
         })
         .catch((e: unknown) => {
           if (!cancelled) {
-            setError(e instanceof Error ? e.message : 'Could not load movie.')
-            setMovie(null)
+            setFetchError(
+              e instanceof Error ? e.message : 'Could not load movie.',
+            )
+            setFetchedMovie(null)
           }
         })
         .finally(() => {
-          if (!cancelled) setLoading(false)
+          if (!cancelled) setFetchLoading(false)
         })
     })
     return () => {
