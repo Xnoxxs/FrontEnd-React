@@ -44,11 +44,11 @@ export default function MovieBrowse({ storybookDemo }: MovieBrowseProps = {}) {
             genre_ids: m.genre_ids ?? [],
           }))
         : null,
-    [storybookDemo],
+    [storybookDemo]
   )
   const demoGenres = useMemo(
     () => (storybookDemo ? (storybookDemo.genres ?? []) : null),
-    [storybookDemo],
+    [storybookDemo]
   )
 
   const [fetchedMovies, setFetchedMovies] = useState<Movie[]>([])
@@ -96,14 +96,14 @@ export default function MovieBrowse({ storybookDemo }: MovieBrowseProps = {}) {
               results.map((m) => ({
                 ...m,
                 genre_ids: m.genre_ids ?? [],
-              })),
+              }))
             )
           }
         })
         .catch((e: unknown) => {
           if (!cancelled) {
             setFetchError(
-              e instanceof Error ? e.message : 'Something went wrong',
+              e instanceof Error ? e.message : 'Something went wrong'
             )
             setFetchedMovies([])
           }

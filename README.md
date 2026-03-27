@@ -14,15 +14,15 @@ Features
 
 Tech stack
 
-| Area        | Choice                                      |
-| ----------- | ------------------------------------------- |
-| UI          | React 19                                    |
-| Language    | TypeScript                                  |
-| Build / dev | Vite 8                                      |
-| Routing     | React Router 7                              |
-| Data        | TMDB REST API (`fetch`)                     |
-| Tests       | Vitest, Testing Library                     |
-| Docs        | Storybook 10                                |
+| Area        | Choice                  |
+| ----------- | ----------------------- |
+| UI          | React 19                |
+| Language    | TypeScript              |
+| Build / dev | Vite 8                  |
+| Routing     | React Router 7          |
+| Data        | TMDB REST API (`fetch`) |
+| Tests       | Vitest, Testing Library |
+| Docs        | Storybook 10            |
 
 Prerequisites
 
@@ -31,7 +31,7 @@ Prerequisites
 
 Getting started
 
-1. Install dependencies**
+1. Install dependencies\*\*
 
    npm install
 
@@ -41,23 +41,23 @@ Getting started
 
 3.Run the dev server
 
-   npm run dev
+npm run dev
 
-   Open the URL Vite prints (usually http://localhost:5173).
+Open the URL Vite prints (usually http://localhost:5173).
 
 Scripts
 
-| Command              | Description                          |
-| -------------------- | ------------------------------------ |
-| npm run dev        | Start Vite in development mode       |
-| npm run build      | Typecheck and production build       |
-| npm run preview    | Serve the production build locally   |
-| npm test           | Run Vitest in watch mode             |
-| npm run test:run   | Run Vitest once (CI-friendly)        |
-| npm run lint       | ESLint across the project            |
-| npm run format:check | Check formatting with Prettier     |
-| npm run storybook  | Storybook UI on port 6006            |
-| npm run build-storybook | Static Storybook build          |
+| Command                 | Description                        |
+| ----------------------- | ---------------------------------- |
+| npm run dev             | Start Vite in development mode     |
+| npm run build           | Typecheck and production build     |
+| npm run preview         | Serve the production build locally |
+| npm test                | Run Vitest in watch mode           |
+| npm run test:run        | Run Vitest once (CI-friendly)      |
+| npm run lint            | ESLint across the project          |
+| npm run format:check    | Check formatting with Prettier     |
+| npm run storybook       | Storybook UI on port 6006          |
+| npm run build-storybook | Static Storybook build             |
 
 Project layout
 
@@ -69,4 +69,3 @@ Project layout
 ---
 
 Data and images are provided by TMDB; this app is not endorsed or certified by TMDB.
-

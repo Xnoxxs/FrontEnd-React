@@ -77,7 +77,7 @@ export default function MovieDetail({ storybookDemo }: MovieDetailProps = {}) {
         .catch((e: unknown) => {
           if (!cancelled) {
             setFetchError(
-              e instanceof Error ? e.message : 'Could not load movie.',
+              e instanceof Error ? e.message : 'Could not load movie.'
             )
             setFetchedMovie(null)
           }
@@ -127,10 +127,7 @@ export default function MovieDetail({ storybookDemo }: MovieDetailProps = {}) {
     )
   }
 
-  const backdropUrl = resolveTmdbImage(
-    TMDB_BACKDROP_BASE,
-    movie.backdrop_path,
-  )
+  const backdropUrl = resolveTmdbImage(TMDB_BACKDROP_BASE, movie.backdrop_path)
   const posterUrl = resolveTmdbImage(TMDB_POSTER_LARGE, movie.poster_path)
 
   return (
