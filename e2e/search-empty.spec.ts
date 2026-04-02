@@ -20,5 +20,5 @@ test('nonsense search — intentional failure (must not see empty copy)', async 
   // Wait until that state is real so we cannot pass early, then assert the opposite so the test FAILS.
   const emptyCopy = page.getByText('No movies match your filters.')
   await expect(emptyCopy).toBeVisible({ timeout: 15_000 })
-  //await expect(emptyCopy).not.toBeVisible()
+  await expect(emptyCopy).not.toBeVisible()
 })
