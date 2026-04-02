@@ -55,8 +55,10 @@ export default function MovieDetail({ storybookDemo }: MovieDetailProps = {}) {
 
   useEffect(() => {
     if (storybookDemo) return
+
     let cancelled = false
-    void Promise.resolve().then(() => {
+
+    const fetchData = async () => {
       if (cancelled) return
       if (!hasApiKey) {
         setFetchLoading(false)
@@ -70,22 +72,23 @@ export default function MovieDetail({ storybookDemo }: MovieDetailProps = {}) {
       }
       setFetchLoading(true)
       setFetchError(null)
-      void fetchMovieDetails(apiKey, id)
-        .then((data) => {
-          if (!cancelled) setFetchedMovie(data)
-        })
-        .catch((e: unknown) => {
-          if (!cancelled) {
-            setFetchError(
-              e instanceof Error ? e.message : 'Could not load movie.'
-            )
-            setFetchedMovie(null)
-          }
-        })
-        .finally(() => {
-          if (!cancelled) setFetchLoading(false)
-        })
-    })
+      try {
+        const data = await fetchMovieDetails(apiKey, id)
+        if (!cancelled) setFetchedMovie(data)
+      } catch (e: unknown) {
+        if (!cancelled) {
+          setFetchError(
+            e instanceof Error ? e.message : 'Could not load movie.'
+          )
+          setFetchedMovie(null)
+        }
+      } finally {
+        if (!cancelled) setFetchLoading(false)
+      }
+    }
+
+    void fetchData()
+
     return () => {
       cancelled = true
     }
