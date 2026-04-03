@@ -6,7 +6,8 @@ import MovieCard from '../../components/MovieCard'
 import { TMDB_IMAGE_BASE } from '../../lib/api_client'
 
 describe('MovieCard', () => {
-  // Exercises the main card UI: detail link, title/year/rating line, TMDB-relative vs absolute poster URLs, and the no-poster placeholder (three quick scenarios in one test to avoid duplicate router setup).
+  // Exercises the main card UI:
+  // detail link, title/year/rating line, TMDB-relative vs absolute poster URLs, and the no-poster placeholder (three quick scenarios in one test to avoid duplicate router setup).
   it('renders link, meta line, relative poster path, and placeholder when poster is missing', () => {
     const { unmount: u1 } = render(
       <MemoryRouter>

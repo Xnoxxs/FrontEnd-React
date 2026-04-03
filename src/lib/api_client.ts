@@ -103,7 +103,7 @@ async function parseJson<T>(res: Response): Promise<T> {
   return data as T
 }
 
-export async function fetchPopularMovies(apiKey: string): Promise<Movie[]> {
+export async function fetchMovies(apiKey: string): Promise<Movie[]> {
   const res = await fetch(
     `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`
   )

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-// Ensures the detail route exposes a back control that returns to the browse URL (works with API key missing—notice state—or with errors/loading that still render the back link).
+// Ensures the detail route exposes a back control that returns to the browse URL
 test('movie detail back link navigates to browse', async ({ page }) => {
   await page.goto('/movie/123')
 

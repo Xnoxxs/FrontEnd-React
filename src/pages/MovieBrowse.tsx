@@ -5,7 +5,7 @@ import MovieCard from '../components/MovieCard'
 // API calls and types for genre list, movie rows, and card fields.
 import {
   fetchMovieGenres,
-  fetchPopularMovies,
+  fetchMovies,
   searchMovies,
   type Genre,
   type Movie,
@@ -115,9 +115,7 @@ export default function MovieBrowse({ storybookDemo }: MovieBrowseProps = {}) {
         const q = debouncedSearch.trim()
         // Empty query → trending popular list; otherwise TMDB text search.
         const results =
-          q === ''
-            ? await fetchPopularMovies(apiKey)
-            : await searchMovies(apiKey, q)
+          q === '' ? await fetchMovies(apiKey) : await searchMovies(apiKey, q)
 
         if (!cancelled) {
           setFetchedMovies(

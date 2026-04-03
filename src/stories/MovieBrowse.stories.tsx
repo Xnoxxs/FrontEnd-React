@@ -67,3 +67,12 @@ export const WithDemoData: Story = {
     storybookDemo: storybookBrowseDemo,
   },
 }
+
+export const FilterEmptyState: Story = {
+  args: {
+    storybookDemo: {
+      movies: [],
+      genres: browseGenres,
+    },
+  },
+}
