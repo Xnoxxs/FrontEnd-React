@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import type { MovieDetails } from '../lib/api_client'
-import MovieDetail from './MovieDetail'
+import MovieDetail from '../pages/MovieDetail'
 
 const sampleMovieDetails = {
   id: 9901,

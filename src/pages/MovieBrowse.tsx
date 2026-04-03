@@ -1,18 +1,24 @@
+// Movie browse page: lists popular or searched TMDB movies, filter controls, and links to detail via MovieCard.
 import { useEffect, useMemo, useState } from 'react'
 import '../css/MovieBrowse.css'
 import MovieCard from '../components/MovieCard'
+// API calls and types for genre list, movie rows, and card fields.
 import {
   fetchMovieGenres,
-  fetchPopularMovies,
+  fetchMovies,
   searchMovies,
   type Genre,
   type Movie,
 } from '../lib/api_client'
 
+// How long to wait after the user stops typing before using search text for TMDB (milliseconds).
 const SEARCH_DEBOUNCE_MS = 400
 
+// I have a value that changes often (like every keystroke in search),
+//  but I only want to use the value after the user has paused for a bit.
 function useDebouncedValue<T>(value: T, ms: number): T {
   const [debounced, setDebounced] = useState(value)
+  // After `value` stops changing for `ms` milliseconds, update the debounced copy (used so search API calls wait for typing to pause).
   useEffect(() => {
     const id = window.setTimeout(() => setDebounced(value), ms)
     return () => window.clearTimeout(id)
@@ -20,8 +26,10 @@ function useDebouncedValue<T>(value: T, ms: number): T {
   return debounced
 }
 
+// Toolbar sort dropdown: popularity (default), average rating, or release date (newest first).
 type SortOption = 'popularity' | 'rating' | 'release_date'
 
+// Shape of optional static data passed from Storybook so this page renders without TMDB.
 export type MovieBrowseStorybookDemo = {
   movies: Movie[]
   genres?: Genre[]
@@ -33,9 +41,12 @@ type MovieBrowseProps = {
 }
 
 export default function MovieBrowse({ storybookDemo }: MovieBrowseProps = {}) {
+  // Vite injects this at build time; empty string if unset (user sees banner to add .env).
   const apiKey = (import.meta.env.VITE_TMDB_API_KEY ?? '').trim()
+  // True if we can call TMDB or Storybook supplied demo data (hides key banner and enables controls).
   const hasApiKey = apiKey.length > 0 || Boolean(storybookDemo)
 
+  // When `storybookDemo` is set, normalize movies (ensure genre_ids arrays); otherwise null so we use API state.
   const demoMovies = useMemo(
     () =>
       storybookDemo
@@ -46,28 +57,38 @@ export default function MovieBrowse({ storybookDemo }: MovieBrowseProps = {}) {
         : null,
     [storybookDemo]
   )
+  // Storybook-only genre list for the dropdown; null means use `fetchedGenres` from TMDB.
   const demoGenres = useMemo(
     () => (storybookDemo ? (storybookDemo.genres ?? []) : null),
     [storybookDemo]
   )
 
-  const [fetchedMovies, setFetchedMovies] = useState<Movie[]>([])
+  // fetchedGenres — the current list of genres from the API (after fetchMovieGenres succeeds, or [] after an error / before load).
+  // setFetchedGenres — the function you call to replace that list, e.g. setFetchedGenres(newArray). React will re-render when you call it.
   const [fetchedGenres, setFetchedGenres] = useState<Genre[]>([])
-  const movies = demoMovies ?? fetchedMovies
+  // Genres for the filter `<select>`: demo copy in Storybook, otherwise TMDB genre/list.
   const genres = demoGenres ?? fetchedGenres
 
+  const [fetchedMovies, setFetchedMovies] = useState<Movie[]>([])
+  // Rows shown before filters/sort: demo list or latest successful popular/search response.
+  const movies = demoMovies ?? fetchedMovies
+
+  // Raw search box value; debounced copy below drives API search to reduce requests while typing.
   const [searchInput, setSearchInput] = useState('')
   const debouncedSearch = useDebouncedValue(searchInput, SEARCH_DEBOUNCE_MS)
 
+  // Filter state: selected genre id string ('all' or TMDB id), minimum vote average, and sort mode.
   const [genreId, setGenreId] = useState<string>('all')
   const [minRating, setMinRating] = useState<string>('0')
   const [sortBy, setSortBy] = useState<SortOption>('popularity')
 
+  // Async status for the movie list request (ignored in Storybook when using demo data).
   const [fetchLoading, setFetchLoading] = useState(false)
   const [fetchError, setFetchError] = useState<string | null>(null)
   const loading = storybookDemo ? false : fetchLoading
   const error = storybookDemo ? null : fetchError
 
+  // Load TMDB genre list for the genre filter (skipped in Storybook or without an API key; on failure genres stay empty).
   useEffect(() => {
     if (storybookDemo) return
     if (!apiKey) return
@@ -78,47 +99,52 @@ export default function MovieBrowse({ storybookDemo }: MovieBrowseProps = {}) {
       })
   }, [storybookDemo, apiKey])
 
+  // Load popular movies or search results from TMDB when the debounced query or credentials change; cancels in-flight work if deps change again (skipped in Storybook or without a key).
   useEffect(() => {
     if (storybookDemo) return
     if (!apiKey) return
+
+    // Flipped true in the effect cleanup so an older request cannot overwrite state after deps change or unmount.
     let cancelled = false
-    void Promise.resolve().then(() => {
-      if (cancelled) return
-      setFetchLoading(true)
-      setFetchError(null)
-      const q = debouncedSearch.trim()
-      const promise =
-        q === '' ? fetchPopularMovies(apiKey) : searchMovies(apiKey, q)
-      void promise
-        .then((results) => {
-          if (!cancelled) {
-            setFetchedMovies(
-              results.map((m) => ({
-                ...m,
-                genre_ids: m.genre_ids ?? [],
-              }))
-            )
-          }
-        })
-        .catch((e: unknown) => {
-          if (!cancelled) {
-            setFetchError(
-              e instanceof Error ? e.message : 'Something went wrong'
-            )
-            setFetchedMovies([])
-          }
-        })
-        .finally(() => {
-          if (!cancelled) {
-            setFetchLoading(false)
-          }
-        })
-    })
+
+    const fetchData = async () => {
+      try {
+        setFetchLoading(true)
+        setFetchError(null)
+
+        const q = debouncedSearch.trim()
+        // Empty query → trending popular list; otherwise TMDB text search.
+        const results =
+          q === '' ? await fetchMovies(apiKey) : await searchMovies(apiKey, q)
+
+        if (!cancelled) {
+          setFetchedMovies(
+            results.map((m) => ({
+              ...m,
+              genre_ids: m.genre_ids ?? [],
+            }))
+          )
+        }
+      } catch (e: unknown) {
+        if (!cancelled) {
+          setFetchError(e instanceof Error ? e.message : 'Something went wrong')
+          setFetchedMovies([])
+        }
+      } finally {
+        if (!cancelled) {
+          setFetchLoading(false)
+        }
+      }
+    }
+
+    void fetchData() // fire-and-forget async work; React runs cleanup on dependency change/unmount
+
     return () => {
       cancelled = true
     }
   }, [storybookDemo, apiKey, debouncedSearch])
 
+  // Derived list: copy of `movies`, then genre + min-rating filters, then sort (recalculates when inputs change).
   const displayedMovies = useMemo(() => {
     let list = [...movies]
 
