@@ -1,5 +1,7 @@
 React Movie Browser
 
+Website: https://front-end-react-seven.vercel.app/
+
 A modern single-page app for discovering films. Browse popular titles from [The Movie Database (TMDB)](https://www.themoviedb.org/), search with debounced queries, filter by genre and minimum rating, sort by popularity, rating, or release date, and open any title for a full detail view with cast-adjacent metadata from the API.
 
 This project is a learning-friendly React front end: TypeScript for safety, Vite for fast dev and builds, and a small set of pages and components wired with React Router.
